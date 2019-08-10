@@ -1,0 +1,40 @@
+{
+  "name": "epdoc-util",
+  "version": "0.0.1",
+  "description": "Typescript-aware guard tests",
+  "keywords": [
+    "util",
+    "typescript"
+  ],
+  "license": "MIT",
+  "author": {
+    "name": "James Pravetz",
+    "email": "jpravetz@epdoc.com"
+  },
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/jpravetz/epdoc-util"
+  },
+  "scripts": {
+    "clean": "rm -rf dist",
+    "build": "tsc",
+    "watch": "jest --watch",
+    "test": "jest --runInBand",
+    "coverage": "jest --coverage --runInBand --verbose",
+    "prepublish": "tsc",
+    "prepare": "npm run build",
+    "format": "prettier --write 'src/**/*.ts'"
+  },
+  "jest": {
+    "verbose": true
+  },
+  "devDependencies": {
+    "@types/jest": "^24.0.17",
+    "@types/node": "^12.7.1",
+    "jest": "^24.8.0",
+    "prettier": "^1.18.2",
+    "typescript": "^3.5.3"
+  }
+}
