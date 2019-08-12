@@ -1,4 +1,4 @@
-import { IGenericObject } from '..';
+export type Dict = { [key: string]: any };
 
 const REGEX = {
   isTrue: /^true$/i,
@@ -10,94 +10,317 @@ const REGEX = {
   html: /[&<>"'\/]/g,
   instr: /^\[([^\]]+)\](.*)$/
 };
-const VAL_MAP: { [key: string]: any } = {
-  string: 'isString',
-  number: 'isNumber',
-  boolean: 'isBoolean',
-  null: 'isNull',
-  object: 'isObject',
-  array: 'isArray',
-  date: 'isDate',
-  any: 'isDefined',
-  integer: 'isInteger'
-};
+
+// export class ValType {
+//   string : string = 'isString';
+//   number : string = 'isNumber';
+//   boolean : string = 'isBoolean';
+//   null : string = 'isNull';
+//   object : string = 'isObject';
+//   array : string = 'isArray';
+//   date : string = 'isDate';
+//   any : string = 'isDefined';
+//   integer : string = 'isInteger';
+// }
+
+// export enum ValType {
+//   string = <any>'isString',
+//   number = <any>'isNumber',
+//   boolean = <any>'isBoolean',
+//   null = <any>'isNull',
+//   object = <any>'isObject',
+//   array = <any>'isArray',
+//   date = <any>'isDate',
+//   any = <any>'isDefined',
+//   integer = <any>'isInteger'
+// }
 
 export class Util {
-  public static validSchemaTypes: string[] = Object.keys(VAL_MAP);
+  public static ValType = {
+    string: Util.isString,
+    number: Util.isNumber,
+    boolean: Util.isBoolean,
+    null: Util.isNull,
+    object: Util.isObject,
+    array: Util.isArray,
+    date: Util.isDate,
+    any: Util.isDefined,
+    integer: Util.isInteger
+  };
+  private _path?: string[];
+  private _throw: boolean = false;
+  private _obj?: Dict;
+  private _src?: string;
 
-  public static isNumber(val: any): val is number {
-    return typeof val === 'number' && !isNaN(val);
+  constructor() {}
+
+  path(...path: string[]): this {
+    return this._resolvePath(...path);
   }
 
-  public static isPosNumber(val: any): val is number {
-    return typeof val === 'number' && !isNaN(val) && val > 0;
+  public static path(...path: string[]) {
+    return new Util().path(...path);
   }
 
-  public static isInteger(val: any): val is number {
-    return Util.isNumber(val) && Number.isInteger(val);
+  src(src: string): this {
+    this._src = src;
+    return this;
   }
 
-  /**
-   * Is 1,2,3,4,...
-   * @param {Number} val
-   */
-  public static isPosInteger(val: any): val is number {
-    return Util.isNumber(val) && Number.isInteger(val) && val > 0;
+  public static src(src: string) {
+    return new Util().src(src);
   }
 
-  public static notString(val: any) {
-    return typeof val !== 'string' || val.length === 0;
+  throw(v?: boolean) {
+    this._throw = v === true ? true : false;
+    return this;
   }
 
-  public static isNonEmptyString(val: any, path?: string): val is string {
-    val = path ? Util.getPropertyValue(val, path) : val;
-    return typeof val === 'string' && val.length > 0;
+  public static throw(v?: boolean) {
+    return new Util().throw(v);
   }
 
-  public static isString(val: any, path?: string): val is string {
-    const s = path ? Util.getPropertyValue(val, path) : val;
-    return typeof s === 'string';
+  private _getValue(val) {
+    if (!this._path) {
+      return val;
+    }
+    return this._resolveValue(val);
+  }
+
+  value(val: any): any {
+    if (this._path && this._path.length && Util.isDict(val)) {
+      return this._resolveValue(val);
+    }
+    return val;
+  }
+
+  protected _resolvePath(...path: (string | string[])[]) {
+    let a: string[] = [];
+    path.forEach(arg => {
+      if (Util.isString(arg)) {
+        arg = arg.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
+        arg = arg.replace(/^\./, ''); // strip a leading dot
+        const args = arg.split('.');
+        a = [...a, ...args];
+      } else if (Util.isArray(arg)) {
+        a = [...a, ...arg];
+      }
+    });
+    this._path = a;
+    return this;
+  }
+
+  protected _resolveValue(obj: Dict): any {
+    let val = obj;
+    for (let i = 0, n = this._path.length; i < n; ++i) {
+      const k = this._path[i];
+      if (val && k in val) {
+        val = val[k];
+      } else {
+        if (this._throw) {
+          throw new Error(
+            `Property ${this._path.join('.')} not found in ${
+              this._src ? this._src : 'object'
+            }`
+          );
+        }
+        return;
+      }
+    }
+    return val;
+  }
+
+  setValue(object: Dict, value: any) {
+    let a: any[] = [];
+    if (this._path && this._path.length && Util.isDict(object)) {
+      let obj = object;
+      const n = this._path.length;
+      for (let i = 0; i < n; ++i) {
+        const k = this._path[i];
+        if (obj) {
+          if (!(k in obj)) {
+            obj[k] = {};
+          }
+          obj = obj[k];
+        }
+      }
+      obj = value;
+    }
+  }
+
+  isDict(val: any): val is Dict {
+    return Util.isDict(this._getValue(val));
+  }
+
+  public static isDict(val: any): val is Dict {
+    if (!Util.isObject(val)) {
+      return false;
+    }
+    return true;
+  }
+
+  isBoolean(val: any): val is boolean {
+    return Util.isBoolean(this._getValue(val));
   }
 
   public static isBoolean(val: any): val is boolean {
     return typeof val === 'boolean';
   }
 
+  isString(val: any): val is string {
+    return Util.isString(this._getValue(val));
+  }
+
+  public static isString(val: any): val is string {
+    return typeof val === 'string';
+  }
+
+  isNumber(val: any): val is number {
+    return Util.isNumber(this._getValue(val));
+  }
+
+  public static isNumber(val: any): val is number {
+    return typeof val === 'number' && !isNaN(val);
+  }
+
+  isPosNumber(val: any): val is number {
+    return Util.isPosNumber(this._getValue(val));
+  }
+
+  /**
+   * Is 1,2,3,4,...
+   * @param val
+   */
+  public static isPosNumber(val: any): val is number {
+    return typeof val === 'number' && !isNaN(val) && val > 0;
+  }
+
+  isInteger(val: any): val is number {
+    return Util.isInteger(this._getValue(val));
+  }
+
+  public static isInteger(val: any): val is number {
+    return Util.isNumber(val) && Number.isInteger(val);
+  }
+
+  isNonEmptyString(val: any): val is number {
+    return Util.isNonEmptyString(this._getValue(val));
+  }
+
+  public static isNonEmptyString(val: any): val is string {
+    return typeof val === 'string' && val.length > 0;
+  }
+
+  isFunction(val: any): val is Function {
+    return Util.isFunction(this._getValue(val));
+  }
+
   public static isFunction(val: any) {
     return typeof val === 'function';
   }
 
-  public static isRegExp(val: any): val is RegExp {
-    return val instanceof RegExp;
-  }
-
-  public static isNull(val: any): val is null {
-    return val === null ? true : false;
-  }
-
-  public static isDefined(val: any) {
-    return val !== undefined;
-  }
-
-  public static isNonEmptyArray(val: any, path?: string): val is [] {
-    const a: any = path ? Util.getPropertyValue(val, path) : val;
-    return Array.isArray(a) && a.length > 0;
-  }
-
-  public static isEmpty(obj: IGenericObject) {
-    return Object.keys(obj).length === 0 && obj.constructor === Object;
-  }
-
-  public static isError(val: any): val is Error {
-    return val instanceof Error;
+  isDate(val: any): val is Date {
+    return Util.isDate(this._getValue(val));
   }
 
   public static isDate(val: any): val is Date {
     return val instanceof Date;
   }
 
+  isArray(val: any): val is [] {
+    return Util.isArray(this._getValue(val));
+  }
+
   public static isArray(val: any): val is [] {
     return Array.isArray(val);
+  }
+
+  isNonEmptyArray(val: any): val is [] {
+    return Util.isNonEmptyArray(this._getValue(val));
+  }
+
+  public static isNonEmptyArray(val: any): val is [] {
+    return Array.isArray(val) && val.length > 0;
+  }
+
+  isRegExp(val: any): val is RegExp {
+    return Util.isRegExp(this._getValue(val));
+  }
+
+  public static isRegExp(val: any): val is RegExp {
+    return val instanceof RegExp;
+  }
+
+  isNull(val: any): val is null {
+    return Util.isNull(this._getValue(val));
+  }
+
+  public static isNull(val: any): val is null {
+    return val === null ? true : false;
+  }
+
+  isDefined(val: any): val is any {
+    return Util.isDefined(this._getValue(val));
+  }
+
+  public static isDefined(val: any) {
+    return val !== undefined;
+  }
+
+  /**
+   * Is not undefined or null.
+   * @param {*} obj
+   */
+  hasValue(val: any) {
+    return Util.hasValue(this._getValue(val));
+  }
+
+  public static hasValue(obj: any) {
+    return obj !== null && obj !== undefined;
+  }
+
+  isEmpty(val: Dict) {
+    return Util.isEmpty(this._getValue(val));
+  }
+
+  public static isEmpty(obj: Dict) {
+    return Object.keys(obj).length === 0 && obj.constructor === Object;
+  }
+
+  isError(val: any): val is Error {
+    return Util.isError(this._getValue(val));
+  }
+
+  public static isError(val: any): val is Error {
+    return val instanceof Error;
+  }
+
+  isObject(val: any) {
+    return Util.isObject(this._getValue(val));
+  }
+
+  /**
+   * An Object and NOT an array or Date
+   * @param obj
+   */
+  public static isObject(val: any) {
+    return (
+      val !== null &&
+      typeof val === 'object' &&
+      !Array.isArray(val) &&
+      !(val instanceof Date) &&
+      !(val instanceof RegExp)
+    );
+  }
+
+  /**
+   * Careful using this method on minimized code where the name of the class might be changed
+   * @param obj
+   * @param name
+   * @returns {*|boolean}
+   */
+  public static isClass(obj: any, name: string) {
+    return Util.isObject(obj) && obj.constructor.name === name;
   }
 
   public static asError(...args: any[]): Error {
@@ -125,51 +348,9 @@ export class Util {
     return err as Error;
   }
 
-  /**
-   * An Object and NOT an array or Date
-   * @param obj
-   * @returns {boolean}
-   */
-  public static isObject(obj: any, path?: string) {
-    const val = path ? Util.getPropertyValue(obj, path) : obj;
-    return (
-      val !== null &&
-      typeof val === 'object' &&
-      !Array.isArray(val) &&
-      !(val instanceof Date) &&
-      !(val instanceof RegExp)
-    );
-  }
-
-  /**
-   * Is not undefined or null.
-   * @param {*} obj
-   */
-  public static hasValue(obj: any) {
-    return obj !== null && obj !== undefined;
-  }
-
-  /**
-   * Careful using this method on minimized code where the name of the class might be changed
-   * @param obj
-   * @param name
-   * @returns {*|boolean}
-   */
-  public static isClass(obj: any, name: string) {
-    return Util.isObject(obj) && obj.constructor.name === name;
-  }
-
-  public static isEventAggregator(ea: any) {
-    return (
-      Util.isObject(ea) &&
-      Util.isObject(ea.eventLookup) &&
-      Array.isArray(ea.messageHandlers)
-    );
-  }
-
-  public static pick(obj: IGenericObject, ...args: any[]) {
+  public static pick(obj: Dict, ...args: any[]) {
     // eslint-disable-line no-extend-native
-    const result: IGenericObject = {};
+    const result: Dict = {};
     if (Array.isArray(args[0])) {
       args = args[0];
     }
@@ -181,61 +362,21 @@ export class Util {
     return result;
   }
 
-  public static omit(obj: IGenericObject, ...args: any[]) {
+  public static omit(obj: Dict, ...args: any[]) {
     if (Array.isArray(args[0])) {
       args = args[0];
     }
     const keys = Object.keys(obj).filter(key => args.indexOf(key) < 0);
-    const newObj: IGenericObject = {};
+    const newObj: Dict = {};
     keys.forEach(k => {
       newObj[k] = obj[k];
     });
     return newObj;
   }
 
-  public static validatePropertyType(obj: IGenericObject, name: string, type: any) {
-    if (obj) {
-      return Util.validateType(obj[name], type);
-    }
-    return false;
-  }
-
-  public static schemaTypeValidator(type: string) {
-    return Util.VAL_MAP[type];
-  }
-
-  /**
-   * Verify that val is any one of the basic types or executes a RegExp against the val.
-   * @param val
-   * @param type {String|array of string} - To contain one or more entries from VAL_MAP as a string, array of strings or entries separated by '|'.
-   * @returns {boolean} Returns true if val is one of type. If type is a RegExp then tests val against the RegExp.
-   */
-  public static validateType(val: any, type: string | string[]) {
-    let types: string[] = Array.isArray(type) ? type : [];
-    if (Util.isString(type)) {
-      types = (type as string).split('|');
-    }
-    for (const t of types) {
-      const fn = Util.VAL_MAP[t];
-      if (fn && fn(val)) {
-        return true;
-      }
-    }
-    return false;
-  }
-
-  public static validateProperty(
-    obj: IGenericObject,
-    name: string,
-    type: string | string[],
-    required: boolean
-  ): IGenericObject | undefined {
-    if (!obj[name] && required) {
-      return { type: 'missing', key: name };
-    } else if (obj[name] && !Util.validateType(obj[name], type)) {
-      return { type: 'type', key: name };
-    }
-  }
+  // public static schemaTypeValidator(type: string) {
+  //   return Util.VAL_MAP[type];
+  // }
 
   public static isTrue(val: any): boolean {
     if (typeof val === 'number') {
@@ -301,75 +442,6 @@ export class Util {
     return Math.round(num * factor) / factor;
   }
 
-  /**
-   * Retrieves the value in the object specified by the key path
-   * @param object the object
-   * @param rest {String, or array of strings, or strings} the path
-   * @param [opts.throw] {boolean}
-   * @param [opts.src] {String}
-   * @returns {*} the value
-   */
-  public static getPropertyValue(object: IGenericObject, ...rest: any[]) {
-    let a: string[] = [];
-    let opts: any = {};
-    rest.forEach(arg => {
-      if (Util.isString(arg)) {
-        arg = arg.replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
-        arg = arg.replace(/^\./, ''); // strip a leading dot
-        const args = arg.split('.');
-        a = [...a, ...args];
-      } else if (Array.isArray(arg)) {
-        a = [...a, ...arg];
-      } else if (Util.isObject(arg)) {
-        opts = arg;
-      }
-    });
-    let obj = object;
-    for (let i = 0, n = a.length; i < n; ++i) {
-      const k = a[i];
-      if (obj && k in obj) {
-        obj = obj[k];
-      } else {
-        if (opts.throw) {
-          throw new Error(
-            `Property ${a.join('.')} not found in ${opts.src ? opts.src : 'object'}`
-          );
-        }
-        return;
-      }
-    }
-    return obj;
-  }
-
-  public static setPropertyValue(
-    object: IGenericObject,
-    prop: string | string[],
-    value: any,
-    opts = {}
-  ) {
-    let a: any[] = [];
-    if (Util.isString(prop)) {
-      prop = (prop as string).replace(/\[(\w+)\]/g, '.$1'); // convert indexes to properties
-      prop = (prop as string).replace(/^\./, ''); // strip a leading dot
-      const args = (prop as string).split('.');
-      a = [...a, ...args];
-    } else if (Array.isArray(prop)) {
-      a = [...a, ...prop];
-    }
-    let obj = object;
-    const n = a.length;
-    for (let i = 0; i < n; ++i) {
-      const k = a[i];
-      if (obj) {
-        if (!(k in obj)) {
-          obj[k] = {};
-        }
-        obj = obj[k];
-      }
-    }
-    obj = value;
-  }
-
   public static deepCopy(a: any) {
     if (a === undefined || a === null) {
       return a;
@@ -384,7 +456,7 @@ export class Util {
       }
       return result;
     } else if (Util.isObject(a)) {
-      const result2: IGenericObject = {};
+      const result2: Dict = {};
       Object.keys(a).forEach(key => {
         result2[key] = Util.deepCopy(a[key]);
       });
@@ -451,23 +523,32 @@ export class Util {
     }
     return true;
   }
-}
 
-// Add toJSON method to Error object
-if (!('toJSON' in Error.prototype)) {
-  Object.defineProperty(Error.prototype, 'toJSON', {
-    value: () => {
-      const alt: IGenericObject = {};
-      // @ts-ignore
-      const self = this;
-      Object.getOwnPropertyNames(self).forEach((key: string) => {
-        // @ts-ignore
-        alt[key] = self[key];
-      }, self);
+  /**
+   * Verify that val is any one of the basic types or executes a RegExp against the val.
+   * @param val
+   * @param type {String|array of string} - To contain one or more entries from VAL_MAP as a string, array of strings or entries separated by '|'.
+   * @returns {boolean} Returns true if val is one of type. If type is a RegExp then tests val against the RegExp.
+   */
+  //   public static validateType(val: any, ...types: ValType[]) {
+  //     for (const t of types) {
+  //       const fn = ValType[t];
+  //       if (fn && Util[fn](val)) {
+  //         return true;
+  //       }
+  //     }
+  //     return false;
+  //   }
 
-      return alt;
-    },
-    configurable: true,
-    writable: true
-  });
+  //   public static validatePropertyType(
+  //     obj: Dict,
+  //     name: string,
+  //     ...types: ValType[]
+  //   ): boolean {
+  //     if (obj) {
+  //       return validateType(obj[name], ...types);
+  //     }
+  //     return false;
+  //   }
+  // }
 }

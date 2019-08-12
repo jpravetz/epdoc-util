@@ -1,4 +1,4 @@
-import { Util } from '../src/util';
+import Util = require('../src');
 
 describe('util basic', () => {
   const obj = {
