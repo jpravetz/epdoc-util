@@ -73,7 +73,7 @@ export declare function isClass(obj: any, name: string): boolean;
  * @param types
  */
 export declare function isType(val: any, ...types: (string | string[])[]): boolean;
-export declare function test(): Util;
+export declare function util(): Util;
 export declare class Util {
     private _path?;
     private _throw;

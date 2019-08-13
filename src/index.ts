@@ -324,7 +324,7 @@ export function isType(val: any, ...types: (string | string[])[]) {
   return util.isType(val, ...types);
 }
 
-export function test() {
+export function util() {
   return new Util();
 }
 

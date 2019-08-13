@@ -2,7 +2,6 @@ import {
   isBoolean,
   isString,
   isNumber,
-  Util,
   isNonEmptyString,
   isArray,
   isPosNumber,
@@ -18,7 +17,7 @@ import {
   omit,
   isObject,
   isError,
-  test as t,
+  util as t,
   isType
 } from '../dist';
 

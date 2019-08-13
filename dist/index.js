@@ -11,28 +11,6 @@ const REGEX = {
     instr: /^\[([^\]]+)\](.*)$/,
     typeSplit: /\s*[,\|]{1}\s*/
 };
-// export class ValType {
-//   string : string = 'isString';
-//   number : string = 'isNumber';
-//   boolean : string = 'isBoolean';
-//   null : string = 'isNull';
-//   object : string = 'isObject';
-//   array : string = 'isArray';
-//   date : string = 'isDate';
-//   any : string = 'isDefined';
-//   integer : string = 'isInteger';
-// }
-// export enum ValType {
-//   string = <any>'isString',
-//   number = <any>'isNumber',
-//   boolean = <any>'isBoolean',
-//   null = <any>'isNull',
-//   object = <any>'isObject',
-//   array = <any>'isArray',
-//   date = <any>'isDate',
-//   any = <any>'isDefined',
-//   integer = <any>'isInteger'
-// }
 function isBoolean(val) {
     return typeof val === 'boolean';
 }
@@ -355,10 +333,10 @@ function isType(val, ...types) {
     return util.isType(val, ...types);
 }
 exports.isType = isType;
-function test() {
+function util() {
     return new Util();
 }
-exports.test = test;
+exports.util = util;
 class Util {
     constructor() {
         this._throw = false;
