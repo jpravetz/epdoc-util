@@ -28,7 +28,15 @@ function isInteger(val) {
 }
 exports.isInteger = isInteger;
 /**
- * Is 1,2,3,4,...
+ * Is 1, 2, 3, ...
+ * @param val
+ */
+function isPosInteger(val) {
+    return isInteger(val) && val > 0;
+}
+exports.isPosInteger = isPosInteger;
+/**
+ * Is > 0
  * @param val
  */
 function isPosNumber(val) {
@@ -184,8 +192,7 @@ exports.asInteger = asInteger;
  * @param [z='0'] {char} character with which to pad string.
  * @returns {String}
  */
-function pad(n, width, z) {
-    z = z || '0';
+function pad(n, width, z = '0') {
     const sn = String(n);
     return sn.length >= width ? sn : new Array(width - sn.length + 1).join(z) + sn;
 }
@@ -324,48 +331,71 @@ function isClass(obj, name) {
 }
 exports.isClass = isClass;
 /**
+ * Convert string of form 'myClass' to 'my-class'
+ * @param str
+ */
+function camelToDash(str) {
+    return str
+        .replace(REGEX.firstUppercase, ([first]) => first.toLowerCase())
+        .replace(REGEX.allUppercase, ([letter]) => `-${letter.toLowerCase()}`);
+}
+exports.camelToDash = camelToDash;
+/**
  * Verify that val is any one of the basic types.
  * @param val - The value to be tested
  * @param types
  */
 function isType(val, ...types) {
-    let util = new Util();
-    return util.isType(val, ...types);
+    let util = new Util(val);
+    return util.isType(...types);
 }
 exports.isType = isType;
 function util() {
     return new Util();
 }
 exports.util = util;
+function object(val, opts) {
+    return new Util(val, opts);
+}
+exports.object = object;
 class Util {
-    constructor() {
+    constructor(val, opts = {}) {
         this._throw = false;
+        this._val = val;
+        this._throw = opts.throw === true ? true : false;
+        this._src = opts.src;
     }
     property(...path) {
         return this._resolvePath(...path);
     }
-    src(src) {
-        if (isString(src)) {
-            this._src = src;
+    source() {
+        if (!this._src) {
+            return 'object';
         }
-        else if (isObject(src) && isFunction(src.toString())) {
-            this._src = src.toString();
+        if (isString(this._src)) {
+            return this._src;
         }
-        return this;
+        return this._src.toString();
     }
     throw(v) {
         this._throw = v === true ? true : false;
         return this;
     }
-    _getValue(val) {
-        if (!this._path) {
-            return val;
-        }
-        return this._resolveValue(val);
-    }
-    value(val) {
-        if (this._path && this._path.length && isDict(val)) {
-            return this._resolveValue(val);
+    value() {
+        let val = this._val;
+        if (this._path) {
+            for (let i = 0, n = this._path.length; i < n; ++i) {
+                const k = this._path[i];
+                if (val && k in val) {
+                    val = val[k];
+                }
+                else {
+                    if (this._throw) {
+                        throw new Error(`Property ${this._path.join('.')} not found in ${this.source()}`);
+                    }
+                    return;
+                }
+            }
         }
         return val;
     }
@@ -385,22 +415,6 @@ class Util {
         this._path = a;
         return this;
     }
-    _resolveValue(obj) {
-        let val = obj;
-        for (let i = 0, n = this._path.length; i < n; ++i) {
-            const k = this._path[i];
-            if (val && k in val) {
-                val = val[k];
-            }
-            else {
-                if (this._throw) {
-                    throw new Error(`Property ${this._path.join('.')} not found in ${this._src ? this._src : 'object'}`);
-                }
-                return;
-            }
-        }
-        return val;
-    }
     setValue(object, value) {
         let a = [];
         if (this._path && this._path.length && isDict(object)) {
@@ -418,62 +432,62 @@ class Util {
             obj = value;
         }
     }
-    isDict(val) {
-        return isDict(this._getValue(val));
+    isDict() {
+        return isDict(this.value());
     }
-    isBoolean(val) {
-        return isBoolean(this._getValue(val));
+    isBoolean() {
+        return isBoolean(this.value());
     }
-    isString(val) {
-        return isString(this._getValue(val));
+    isString() {
+        return isString(this.value());
     }
-    isNumber(val) {
-        return isNumber(this._getValue(val));
+    isNumber() {
+        return isNumber(this.value());
     }
-    isPosNumber(val) {
-        return isPosNumber(this._getValue(val));
+    isPosNumber() {
+        return isPosNumber(this.value());
     }
-    isInteger(val) {
-        return isInteger(this._getValue(val));
+    isInteger() {
+        return isInteger(this.value());
     }
-    isNonEmptyString(val) {
-        return isNonEmptyString(this._getValue(val));
+    isNonEmptyString() {
+        return isNonEmptyString(this.value());
     }
-    isFunction(val) {
-        return isFunction(this._getValue(val));
+    isFunction() {
+        return isFunction(this.value());
     }
-    isDate(val) {
-        return isDate(this._getValue(val));
+    isDate() {
+        return isDate(this.value());
     }
-    isArray(val) {
-        return isArray(this._getValue(val));
+    isArray() {
+        return isArray(this.value());
     }
-    isNonEmptyArray(val) {
-        return isNonEmptyArray(this._getValue(val));
+    isNonEmptyArray() {
+        return isNonEmptyArray(this.value());
     }
-    isRegExp(val) {
-        return isRegExp(this._getValue(val));
+    isRegExp() {
+        return isRegExp(this.value());
     }
-    isNull(val) {
-        return isNull(this._getValue(val));
+    isNull() {
+        return isNull(this.value());
     }
-    isDefined(val) {
-        return isDefined(this._getValue(val));
+    isDefined() {
+        return isDefined(this.value());
     }
-    hasValue(val) {
-        return hasValue(this._getValue(val));
+    hasValue() {
+        return hasValue(this.value());
     }
-    isEmpty(val) {
-        return isEmpty(this._getValue(val));
+    isEmpty() {
+        return isEmpty(this.value());
     }
-    isError(val) {
-        return isError(this._getValue(val));
+    isError() {
+        return isError(this.value());
     }
-    isObject(val) {
-        return isObject(this._getValue(val));
+    isObject() {
+        return isObject(this.value());
     }
-    isType(val, ...types) {
-        let v = this._getValue(val);
+    isType(...types) {
+        let v = this.value();
         let ts = [];
         for (const t of types) {
             if (isNonEmptyString(t)) {
@@ -500,7 +514,7 @@ class Util {
         for (const t of ts2) {
             let fn = 'is' + t.charAt(0).toUpperCase() + t.slice(1);
             if (isFunction(this[fn])) {
-                if (this[fn](val)) {
+                if (this[fn](v)) {
                     return true;
                 }
             }

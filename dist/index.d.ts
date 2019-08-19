@@ -6,7 +6,12 @@ export declare function isString(val: any): val is string;
 export declare function isNumber(val: any): val is number;
 export declare function isInteger(val: any): val is number;
 /**
- * Is 1,2,3,4,...
+ * Is 1, 2, 3, ...
+ * @param val
+ */
+export declare function isPosInteger(val: any): val is number;
+/**
+ * Is > 0
  * @param val
  */
 export declare function isPosNumber(val: any): val is number;
@@ -44,7 +49,7 @@ export declare function asInteger(val: any): number;
  * @param [z='0'] {char} character with which to pad string.
  * @returns {String}
  */
-export declare function pad(n: number, width: number, z: string): string;
+export declare function pad(n: number, width: number, z?: string): string;
 /**
  * Float precision that returns a set number of digits after the decimal
  * @param {number} num - number to round
@@ -68,43 +73,54 @@ export declare function asError(...args: any[]): Error;
  */
 export declare function isClass(obj: any, name: string): boolean;
 /**
+ * Convert string of form 'myClass' to 'my-class'
+ * @param str
+ */
+export declare function camelToDash(str: string): string;
+/**
  * Verify that val is any one of the basic types.
  * @param val - The value to be tested
  * @param types
  */
 export declare function isType(val: any, ...types: (string | string[])[]): boolean;
 export declare function util(): Util;
+export interface IUtilSource {
+    toString(): string;
+}
+export declare type UtilOpts = {
+    throw?: boolean;
+    src?: string | IUtilSource;
+};
+export declare function object(val: any, opts?: UtilOpts): Util;
 export declare class Util {
     private _path?;
     private _throw;
-    private _obj?;
+    private _val?;
     private _src?;
-    constructor();
+    constructor(val?: any, opts?: UtilOpts);
     property(...path: string[]): this;
-    src(src: any): this;
+    private source;
     throw(v?: boolean): this;
-    private _getValue;
-    value(val: any): any;
+    value(): any;
     protected _resolvePath(...path: (string | string[])[]): this;
-    protected _resolveValue(obj: Dict): any;
     setValue(object: Dict, value: any): void;
-    isDict(val: any): val is Dict;
-    isBoolean(val: any): val is boolean;
-    isString(val: any): val is string;
-    isNumber(val: any): val is number;
-    isPosNumber(val: any): val is number;
-    isInteger(val: any): val is number;
-    isNonEmptyString(val: any): val is number;
-    isFunction(val: any): val is Function;
-    isDate(val: any): val is Date;
-    isArray(val: any): val is [];
-    isNonEmptyArray(val: any): val is [];
-    isRegExp(val: any): val is RegExp;
-    isNull(val: any): val is null;
-    isDefined(val: any): val is any;
-    hasValue(val: any): boolean;
-    isEmpty(val: Dict): boolean;
-    isError(val: any): val is Error;
-    isObject(val: any): boolean;
-    isType(val: any, ...types: (string | string[])[]): boolean;
+    isDict(): boolean;
+    isBoolean(): boolean;
+    isString(): boolean;
+    isNumber(): boolean;
+    isPosNumber(): boolean;
+    isInteger(): boolean;
+    isNonEmptyString(): boolean;
+    isFunction(): boolean;
+    isDate(): boolean;
+    isArray(): boolean;
+    isNonEmptyArray(): boolean;
+    isRegExp(): boolean;
+    isNull(): boolean;
+    isDefined(): boolean;
+    hasValue(): boolean;
+    isEmpty(): boolean;
+    isError(): boolean;
+    isObject(): boolean;
+    isType(...types: (string | string[])[]): boolean;
 }

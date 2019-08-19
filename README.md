@@ -11,12 +11,16 @@ if (isBoolean(value)) {
 ```
 
 ```ts
-import { util as u } from 'epdoc-util';
+import { object as test } from 'epdoc-util';
 
 let obj = { a: { b: 3 } };
-u.path('a.b').value(obj); // returns 3
+test(obj)
+  .property('a.b')
+  .value(); // returns 3
 
 u.path('a.c').setValue({}, 4); // results in { a: { c: 4 }}
 
-u.path('a.b').isInteger(obj); // returns true
+test(obj)
+  .property('a.b')
+  .isInteger(); // returns true
 ```
