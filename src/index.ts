@@ -173,11 +173,19 @@ export function asFloat(val: any): number {
   return 0;
 }
 
-export function asInteger(val: any): number {
-  if (typeof val === 'number') {
+/**
+ * Always returns a valid integer. Returns 0 if the val cannot be parsed or rounded to an integer.
+ * @param val
+ */
+export function asInt(val: any): number {
+  // for speed do this test first
+  if (isNumber(val)) {
     return Number.isInteger(val) ? val : Math.round(val);
   } else if (isNonEmptyString(val)) {
-    return parseInt(val, 10);
+    let v = parseFloat(val);
+    if (isNumber(v)) {
+      return Number.isInteger(v) ? v : Math.round(v);
+    }
   }
   return 0;
 }

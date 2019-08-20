@@ -20,7 +20,8 @@ import {
   object as t,
   isType,
   camelToDash,
-  pad
+  pad,
+  asInt
 } from '../dist';
 
 describe('util', () => {
@@ -245,6 +246,15 @@ describe('util', () => {
       expect(pad(32, 4)).toEqual('0032');
       expect(pad(32, 4, 'a')).toEqual('aa32');
       expect(pad(32, 2)).toEqual('32');
+    });
+    it('asInt', () => {
+      expect(asInt(32)).toEqual(32);
+      expect(asInt(32.5)).toEqual(33);
+      expect(asInt(9.49)).toEqual(9);
+      expect(asInt('9.49')).toEqual(9);
+      expect(asInt('11.5')).toEqual(12);
+      expect(asInt('aba')).toEqual(0);
+      expect(asInt([])).toEqual(0);
     });
   });
 });

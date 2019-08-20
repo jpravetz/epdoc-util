@@ -41,7 +41,11 @@ export declare function omit(obj: Dict, ...args: any[]): Dict;
 export declare function isTrue(val: any): boolean;
 export declare function isFalse(val: any): boolean;
 export declare function asFloat(val: any): number;
-export declare function asInteger(val: any): number;
+/**
+ * Always returns a valid integer. Returns 0 if the val cannot be parsed or rounded to an integer.
+ * @param val
+ */
+export declare function asInt(val: any): number;
 /**
  *
  * @param n {number} number to pad with leading zeros.

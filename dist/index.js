@@ -175,16 +175,24 @@ function asFloat(val) {
     return 0;
 }
 exports.asFloat = asFloat;
-function asInteger(val) {
-    if (typeof val === 'number') {
+/**
+ * Always returns a valid integer. Returns 0 if the val cannot be parsed or rounded to an integer.
+ * @param val
+ */
+function asInt(val) {
+    // for speed do this test first
+    if (isNumber(val)) {
         return Number.isInteger(val) ? val : Math.round(val);
     }
     else if (isNonEmptyString(val)) {
-        return parseInt(val, 10);
+        let v = parseFloat(val);
+        if (isNumber(v)) {
+            return Number.isInteger(v) ? v : Math.round(v);
+        }
     }
     return 0;
 }
-exports.asInteger = asInteger;
+exports.asInt = asInt;
 /**
  *
  * @param n {number} number to pad with leading zeros.
