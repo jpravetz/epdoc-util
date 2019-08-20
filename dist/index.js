@@ -368,13 +368,18 @@ function utilObj(val, opts) {
 exports.utilObj = utilObj;
 class Util {
     constructor(val, opts = {}) {
+        this._path = [];
         this._throw = false;
         this._val = val;
         this._throw = opts.throw === true ? true : false;
         this._src = opts.src;
     }
+    prop(...path) {
+        return this.property(...path);
+    }
     property(...path) {
-        return this._resolvePath(...path);
+        this._path = this._path.concat(this._resolvePath(...path));
+        return this;
     }
     source() {
         if (!this._src) {
@@ -389,9 +394,12 @@ class Util {
         this._throw = v === true ? true : false;
         return this;
     }
+    val() {
+        return this.value();
+    }
     value() {
         let val = this._val;
-        if (this._path) {
+        if (this._path.length) {
             for (let i = 0, n = this._path.length; i < n; ++i) {
                 const k = this._path[i];
                 if (val && k in val) {
@@ -420,8 +428,7 @@ class Util {
                 a = [...a, ...arg];
             }
         });
-        this._path = a;
-        return this;
+        return a;
     }
     setValue(object, value) {
         let a = [];
@@ -439,6 +446,18 @@ class Util {
             }
             obj = value;
         }
+    }
+    asBoolean() {
+        return isTrue(this.value());
+    }
+    asInt() {
+        return asInt(this.value());
+    }
+    asFloat() {
+        return asFloat(this.value());
+    }
+    asString() {
+        return String(this.value());
     }
     isDict() {
         return isDict(this.value());

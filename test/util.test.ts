@@ -41,7 +41,7 @@ describe('util', () => {
       ).toBe(true);
       expect(
         t({ a: { b: 'string' } })
-          .property('a.b')
+          .prop('a.b')
           .isString()
       ).toBe(true);
       expect(

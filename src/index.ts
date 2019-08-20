@@ -367,7 +367,7 @@ export function utilObj(val: any, opts?: UtilOpts) {
 }
 
 export class Util {
-  private _path?: string[];
+  private _path?: string[] = [];
   private _throw: boolean = false;
   private _val?: any;
   private _src?: IUtilSource;
@@ -378,8 +378,13 @@ export class Util {
     this._src = opts.src;
   }
 
+  prop(...path: string[]): this {
+    return this.property(...path);
+  }
+
   property(...path: string[]): this {
-    return this._resolvePath(...path);
+    this._path = this._path.concat(this._resolvePath(...path));
+    return this;
   }
 
   private source() {
@@ -397,9 +402,13 @@ export class Util {
     return this;
   }
 
+  val(): any {
+    return this.value();
+  }
+
   value(): any {
     let val = this._val;
-    if (this._path) {
+    if (this._path.length) {
       for (let i = 0, n = this._path.length; i < n; ++i) {
         const k = this._path[i];
         if (val && k in val) {
@@ -415,7 +424,7 @@ export class Util {
     return val;
   }
 
-  protected _resolvePath(...path: (string | string[])[]) {
+  protected _resolvePath(...path: (string | string[])[]): string[] {
     let a: string[] = [];
     path.forEach(arg => {
       if (isString(arg)) {
@@ -427,8 +436,7 @@ export class Util {
         a = [...a, ...arg];
       }
     });
-    this._path = a;
-    return this;
+    return a;
   }
 
   setValue(object: Dict, value: any) {
@@ -447,6 +455,22 @@ export class Util {
       }
       obj = value;
     }
+  }
+
+  asBoolean() {
+    return isTrue(this.value());
+  }
+
+  asInt() {
+    return asInt(this.value());
+  }
+
+  asFloat() {
+    return asFloat(this.value());
+  }
+
+  asString() {
+    return String(this.value());
   }
 
   isDict() {
