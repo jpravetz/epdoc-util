@@ -95,7 +95,7 @@ export declare type UtilOpts = {
     throw?: boolean;
     src?: string | IUtilSource;
 };
-export declare function object(val: any, opts?: UtilOpts): Util;
+export declare function utilObj(val: any, opts?: UtilOpts): Util;
 export declare class Util {
     private _path?;
     private _throw;

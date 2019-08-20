@@ -362,10 +362,10 @@ function util() {
     return new Util();
 }
 exports.util = util;
-function object(val, opts) {
+function utilObj(val, opts) {
     return new Util(val, opts);
 }
-exports.object = object;
+exports.utilObj = utilObj;
 class Util {
     constructor(val, opts = {}) {
         this._throw = false;

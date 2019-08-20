@@ -362,7 +362,7 @@ export type UtilOpts = {
   src?: string | IUtilSource;
 };
 
-export function object(val: any, opts?: UtilOpts) {
+export function utilObj(val: any, opts?: UtilOpts) {
   return new Util(val, opts);
 }
 

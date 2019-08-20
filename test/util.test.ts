@@ -17,7 +17,7 @@ import {
   omit,
   isObject,
   isError,
-  object as t,
+  utilObj as t,
   isType,
   camelToDash,
   pad,
@@ -200,7 +200,7 @@ describe('util', () => {
     });
   });
 
-  describe('object', () => {
+  describe('utilObj', () => {
     it('value', () => {
       expect(
         t({ a: { b: 3 } })
