@@ -1,8 +1,8 @@
 {
   "name": "epdoc-util",
-  "version": "0.1.5",
+  "version": "0.1.7",
   "description": "Typescript-aware guard tests",
-  "private": true,
+  "private": false,
   "keywords": [
     "util",
     "typescript"
@@ -29,13 +29,13 @@
     "format": "prettier --write 'src/**/*.ts'"
   },
   "devDependencies": {
-    "@types/jest": "^24.0.17",
-    "@types/node": "^12.7.1",
-    "jest": "^24.8.0",
+    "@types/jest": "^24.0.22",
+    "@types/node": "^12.12.6",
+    "jest": "^24.9.0",
     "prettier": "^1.18.2",
-    "ts-jest": "^24.0.2",
+    "ts-jest": "^24.1.0",
     "tslint-config-prettier": "^1.18.0",
     "tslint-plugin-prettier": "^2.0.1",
-    "typescript": "^3.5.3"
+    "typescript": "^3.7.2"
   }
 }

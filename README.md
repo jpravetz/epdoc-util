@@ -24,3 +24,11 @@ test(obj)
   .property('a.b')
   .isInteger(); // returns true
 ```
+
+## Build
+
+```bash
+npm run clean
+npm run build
+npm run test
+```

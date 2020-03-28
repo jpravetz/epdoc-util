@@ -208,6 +208,23 @@ describe('util', () => {
           .value()
       ).toBe(3);
     });
+    it('value', () => {
+      expect(
+        t({ a: { b: 3 } })
+          .property('a')
+          .prop('b')
+          .value()
+      ).toBe(3);
+    });
+    it('value', () => {
+      expect(
+        t({ a: { b: 3 } })
+          .property('a')
+          .reset()
+          .prop('a.b')
+          .value()
+      ).toBe(3);
+    });
   });
 
   describe('deep', () => {

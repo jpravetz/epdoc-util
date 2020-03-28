@@ -40,7 +40,7 @@ export declare function pick(obj: Dict, ...args: any[]): Dict;
 export declare function omit(obj: Dict, ...args: any[]): Dict;
 export declare function isTrue(val: any): boolean;
 export declare function isFalse(val: any): boolean;
-export declare function asFloat(val: any): number;
+export declare function asFloat(val: any, defVal?: number): number;
 /**
  * Always returns a valid integer. Returns 0 if the val cannot be parsed or rounded to an integer.
  * @param val
@@ -102,6 +102,11 @@ export declare class Util {
     private _val?;
     private _src?;
     constructor(val?: any, opts?: UtilOpts);
+    /**
+     * Resets property path. Otherwise each call to prop() will add to the end of
+     * the path. Example obj.reset().prop('a').prop('b')
+     */
+    reset(): this;
     prop(...path: string[]): this;
     property(...path: string[]): this;
     private source;

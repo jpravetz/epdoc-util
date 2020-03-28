@@ -164,13 +164,13 @@ export function isFalse(val: any): boolean {
   return false;
 }
 
-export function asFloat(val: any): number {
+export function asFloat(val: any, defVal?: number): number {
   if (typeof val === 'number') {
     return val;
   } else if (isNonEmptyString(val)) {
     return parseFloat(val);
   }
-  return 0;
+  return isNumber(defVal) ? defVal : 0;
 }
 
 /**
@@ -376,6 +376,15 @@ export class Util {
     this._val = val;
     this._throw = opts.throw === true ? true : false;
     this._src = opts.src;
+  }
+
+  /**
+   * Resets property path. Otherwise each call to prop() will add to the end of
+   * the path. Example obj.reset().prop('a').prop('b')
+   */
+  reset(): this {
+    this._path = [];
+    return this;
   }
 
   prop(...path: string[]): this {
