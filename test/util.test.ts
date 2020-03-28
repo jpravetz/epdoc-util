@@ -201,14 +201,14 @@ describe('util', () => {
   });
 
   describe('utilObj', () => {
-    it('value', () => {
+    it('value1', () => {
       expect(
         t({ a: { b: 3 } })
           .property('a.b')
           .value()
       ).toBe(3);
     });
-    it('value', () => {
+    it('value2', () => {
       expect(
         t({ a: { b: 3 } })
           .property('a')
@@ -216,7 +216,7 @@ describe('util', () => {
           .value()
       ).toBe(3);
     });
-    it('value', () => {
+    it('value3', () => {
       expect(
         t({ a: { b: 3 } })
           .property('a')
@@ -224,6 +224,18 @@ describe('util', () => {
           .prop('a.b')
           .value()
       ).toBe(3);
+    });
+
+    it('setVal', () => {
+      expect(
+        t({ a: { b: 3 } })
+          .prop('a.b')
+          .setVal(5)
+          .property('a')
+          .reset()
+          .prop('a.b')
+          .value()
+      ).toBe(5);
     });
   });
 

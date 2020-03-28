@@ -448,7 +448,12 @@ export class Util {
     return a;
   }
 
-  setValue(object: Dict, value: any) {
+  setVal(value: any): this {
+    this.setValue(this._val, value);
+    return this;
+  }
+
+  setValue(object: Dict, value: any): this {
     let a: any[] = [];
     if (this._path && this._path.length && isDict(object)) {
       let obj = object;
@@ -456,14 +461,20 @@ export class Util {
       for (let i = 0; i < n; ++i) {
         const k = this._path[i];
         if (obj) {
-          if (!(k in obj)) {
-            obj[k] = {};
+          if (i >= n - 1) {
+            if (isDict(obj)) {
+              obj[k] = value;
+            }
+          } else {
+            if (!(k in obj)) {
+              obj[k] = {};
+            }
+            obj = obj[k];
           }
-          obj = obj[k];
         }
       }
-      obj = value;
     }
+    return this;
   }
 
   asBoolean() {

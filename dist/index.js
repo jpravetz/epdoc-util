@@ -438,6 +438,10 @@ class Util {
         });
         return a;
     }
+    setVal(value) {
+        this.setValue(this._val, value);
+        return this;
+    }
     setValue(object, value) {
         let a = [];
         if (this._path && this._path.length && isDict(object)) {
@@ -446,14 +450,21 @@ class Util {
             for (let i = 0; i < n; ++i) {
                 const k = this._path[i];
                 if (obj) {
-                    if (!(k in obj)) {
-                        obj[k] = {};
+                    if (i >= n - 1) {
+                        if (isDict(obj)) {
+                            obj[k] = value;
+                        }
                     }
-                    obj = obj[k];
+                    else {
+                        if (!(k in obj)) {
+                            obj[k] = {};
+                        }
+                        obj = obj[k];
+                    }
                 }
             }
-            obj = value;
         }
+        return this;
     }
     asBoolean() {
         return isTrue(this.value());

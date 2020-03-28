@@ -114,7 +114,8 @@ export declare class Util {
     val(): any;
     value(): any;
     protected _resolvePath(...path: (string | string[])[]): string[];
-    setValue(object: Dict, value: any): void;
+    setVal(value: any): this;
+    setValue(object: Dict, value: any): this;
     asBoolean(): boolean;
     asInt(): number;
     asFloat(): number;
