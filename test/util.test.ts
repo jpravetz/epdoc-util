@@ -1,27 +1,28 @@
 import {
-  isBoolean,
-  isString,
-  isNumber,
-  isNonEmptyString,
-  isArray,
-  isPosNumber,
-  isInteger,
-  isFunction,
-  isNull,
-  isDefined,
-  hasValue,
-  isRegExp,
-  isDate,
-  deepEquals,
-  pick,
-  omit,
-  isObject,
-  isError,
-  utilObj as t,
-  isType,
+  asInt,
   camelToDash,
+  deepCopy,
+  deepEquals,
+  hasValue,
+  isArray,
+  isBoolean,
+  isDate,
+  isDefined,
+  isError,
+  isFunction,
+  isInteger,
+  isNonEmptyString,
+  isNull,
+  isNumber,
+  isObject,
+  isPosNumber,
+  isRegExp,
+  isString,
+  isType,
+  omit,
   pad,
-  asInt
+  pick,
+  utilObj as t
 } from '../dist';
 
 describe('util', () => {
@@ -263,6 +264,53 @@ describe('util', () => {
       expect(result3).toBe(true);
       let result4 = deepEquals(omit(obj, 'e'), { a: 'b', c: 'f' });
       expect(result4).toBe(false);
+    });
+  });
+
+  describe('deepCopy', () => {
+    const obj = {
+      a: 'b',
+      c: '{home}/hello/world',
+      e: 4,
+      f: [{ a: '{home}/hello/world' }],
+      g: { pattern: 'serial$', flags: 'i' },
+      h: { pattern: '(a|bc)' }
+    };
+    const obj2 = {
+      a: 'b',
+      c: 'well/hello/world',
+      e: 4,
+      f: [{ a: 'well/hello/world' }],
+      g: { pattern: 'serial$', flags: 'i' },
+      h: { pattern: '(a|bc)' }
+    };
+    const obj3 = {
+      a: 'b',
+      c: 'well/hello/world',
+      e: 4,
+      f: [{ a: 'well/hello/world' }],
+      g: /serial$/i,
+      h: /(a|bc)/
+    };
+    const replace = { home: 'well' };
+    it('no replace', () => {
+      let result1 = deepCopy(obj);
+      let isEqual1: boolean = deepEquals(obj, result1);
+      expect(isEqual1).toBe(true);
+    });
+    it('replace', () => {
+      let result2 = deepCopy(obj, { replace: replace });
+      let isEqual2: boolean = deepEquals(obj, result2);
+      expect(isEqual2).toBe(false);
+      let isEqual3: boolean = deepEquals(obj2, result2);
+      expect(isEqual3).toBe(true);
+    });
+    it('regexp', () => {
+      let result3 = deepCopy(obj, { replace: replace, detectRegExp: true });
+      let isEqual4: boolean = deepEquals(obj, result3);
+      expect(isEqual4).toBe(false);
+      let isEqual5: boolean = deepEquals(obj3, result3);
+      expect(isEqual5).toBe(true);
     });
   });
 

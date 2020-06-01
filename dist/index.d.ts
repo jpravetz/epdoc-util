@@ -47,6 +47,13 @@ export declare function asFloat(val: any, defVal?: number): number;
  */
 export declare function asInt(val: any): number;
 /**
+ * Return a RegExp or an object with pattern and flags properties as a RegExp.
+ * Used to deserialize RegExp expressions in JSON. Will return undefined
+ * otherwise.
+ * @param val
+ */
+export declare function asRegExp(val: any): RegExp;
+/**
  *
  * @param n {number} number to pad with leading zeros.
  * @param width {number} total width of string (eg. 3 for '005').
@@ -61,7 +68,20 @@ export declare function pad(n: number, width: number, z?: string): string;
  * @return {number} num rounded
  */
 export declare function roundNumber(num: number, dec?: number): number;
-export declare function deepCopy(a: any): any;
+export declare type DeepCopyOpts = {
+    replace?: Dict;
+    detectRegExp?: boolean;
+};
+/**
+ * Performs a deep copy of an object, returning the new object. Will optionally
+ * replace strings if replace is a dictionary of string replacements. For
+ * example, if replace = { home: 'hello' } then any string in `a` that contains
+ * '{home}' will be replaced with well (eg. '{home}/world' becomes
+ * 'hello/world').
+ * @param a - The object to be copied
+ * @param replace Optional dictionary, of string replacements
+ */
+export declare function deepCopy(a: any, opts?: DeepCopyOpts): any;
 /**
  * Value comparator. Considers undefined, null, [] and {} to all be equal
  * @param a

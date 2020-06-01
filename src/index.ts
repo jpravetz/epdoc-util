@@ -191,6 +191,25 @@ export function asInt(val: any): number {
 }
 
 /**
+ * Return a RegExp or an object with pattern and flags properties as a RegExp.
+ * Used to deserialize RegExp expressions in JSON. Will return undefined
+ * otherwise.
+ * @param val
+ */
+export function asRegExp(val: any): RegExp {
+  if (isRegExp(val)) {
+    return val;
+  } else if (isDict(val) && isString(val.pattern)) {
+    const keys: string[] = Object.keys(val);
+    if (isString(val.flags) && keys.length === 2) {
+      return new RegExp(val.pattern, val.flags);
+    } else if (keys.length === 1) {
+      return new RegExp(val.pattern);
+    }
+  }
+}
+
+/**
  *
  * @param n {number} number to pad with leading zeros.
  * @param width {number} total width of string (eg. 3 for '005').
@@ -213,25 +232,58 @@ export function roundNumber(num: number, dec: number = 3): number {
   return Math.round(num * factor) / factor;
 }
 
-export function deepCopy(a: any) {
+export type DeepCopyOpts = {
+  replace?: Dict;
+  detectRegExp?: boolean;
+};
+
+/**
+ * Performs a deep copy of an object, returning the new object. Will optionally
+ * replace strings if replace is a dictionary of string replacements. For
+ * example, if replace = { home: 'hello' } then any string in `a` that contains
+ * '{home}' will be replaced with well (eg. '{home}/world' becomes
+ * 'hello/world').
+ * @param a - The object to be copied
+ * @param replace Optional dictionary, of string replacements
+ */
+export function deepCopy(a: any, opts?: DeepCopyOpts): any {
   if (a === undefined || a === null) {
     return a;
-  } else if (typeof a === 'number' || typeof a === 'string') {
+  } else if (typeof a === 'number') {
     return a;
+  } else if (typeof a === 'string') {
+    if (opts && opts.replace) {
+      let r = a;
+      Object.keys(opts.replace).forEach(b => {
+        const m: string = '{' + b + '}';
+        if (r.includes(m)) {
+          r = r.replace(m, opts.replace[b]);
+        }
+      });
+      return r;
+    } else {
+      return a;
+    }
   } else if (a instanceof Date || a instanceof RegExp) {
     return a;
   } else if (Array.isArray(a)) {
     const result = [];
     for (const b of a) {
-      result.push(b);
+      let r = deepCopy(b, opts);
+      result.push(r);
     }
     return result;
   } else if (isObject(a)) {
-    const result2: Dict = {};
-    Object.keys(a).forEach(key => {
-      result2[key] = deepCopy(a[key]);
-    });
-    return result2;
+    const re: RegExp = opts && opts.detectRegExp ? asRegExp(a) : undefined;
+    if (re) {
+      return re;
+    } else {
+      const result2: Dict = {};
+      Object.keys(a).forEach(key => {
+        result2[key] = deepCopy(a[key], opts);
+      });
+      return result2;
+    }
   }
   return a;
 }
