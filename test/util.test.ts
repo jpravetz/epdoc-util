@@ -1,4 +1,5 @@
 import {
+  asFloat,
   asInt,
   camelToDash,
   deepCopy,
@@ -332,6 +333,18 @@ describe('util', () => {
       expect(asInt('11.5')).toEqual(12);
       expect(asInt('aba')).toEqual(0);
       expect(asInt([])).toEqual(0);
+    });
+    it('asFloat', () => {
+      expect(asFloat(32)).toEqual(32);
+      expect(asFloat(32.5)).toEqual(32.5);
+      expect(asFloat('32.5')).toEqual(32.5);
+      expect(asFloat('9.49')).toEqual(9.49);
+      expect(asFloat('11.5')).toEqual(11.5);
+      expect(asFloat('aba')).toEqual(0);
+      expect(asFloat('aba', { def: 4 })).toEqual(4);
+      expect(asFloat('32,222,456.55')).toEqual(32222456.55);
+      expect(asFloat('32.222.456,55', { commaAsDecimal: true })).toEqual(32222456.55);
+      expect(asFloat([])).toEqual(0);
     });
   });
 });

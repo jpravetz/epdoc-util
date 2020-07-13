@@ -164,13 +164,39 @@ export function isFalse(val: any): boolean {
   return false;
 }
 
-export function asFloat(val: any, defVal?: number): number {
+export type AsFloatOpts = {
+  def?: number;
+  commaAsDecimal?: boolean;
+};
+
+/**
+ * Return val as a float. Handles thousands separators (comma).
+ * @param val
+ * @param opts
+ */
+export function asFloat(val: any, opts?: AsFloatOpts): number {
   if (typeof val === 'number') {
     return val;
-  } else if (isNonEmptyString(val)) {
-    return parseFloat(val);
   }
-  return isNumber(defVal) ? defVal : 0;
+  let v: number;
+  if (isNonEmptyString(val)) {
+    let s: string;
+    if (opts && opts.commaAsDecimal) {
+      s = val.replace(/(\d)\.(\d)/g, '$1$2').replace(/(\d),/g, '$1.');
+    } else {
+      s = val.replace(/(\d),(\d)/g, '$1$2');
+    }
+    v = parseFloat(s);
+  } else {
+    v = NaN;
+  }
+  if (isNaN(v)) {
+    if (opts && isNumber(opts.def)) {
+      return opts.def;
+    }
+    return 0;
+  }
+  return v;
 }
 
 /**

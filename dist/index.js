@@ -166,14 +166,36 @@ function isFalse(val) {
     return false;
 }
 exports.isFalse = isFalse;
-function asFloat(val, defVal) {
+/**
+ * Return val as a float. Handles thousands separators (comma).
+ * @param val
+ * @param opts
+ */
+function asFloat(val, opts) {
     if (typeof val === 'number') {
         return val;
     }
-    else if (isNonEmptyString(val)) {
-        return parseFloat(val);
+    let v;
+    if (isNonEmptyString(val)) {
+        let s;
+        if (opts && opts.commaAsDecimal) {
+            s = val.replace(/(\d)\.(\d)/g, '$1$2').replace(/(\d),/g, '$1.');
+        }
+        else {
+            s = val.replace(/(\d),(\d)/g, '$1$2');
+        }
+        v = parseFloat(s);
     }
-    return isNumber(defVal) ? defVal : 0;
+    else {
+        v = NaN;
+    }
+    if (isNaN(v)) {
+        if (opts && isNumber(opts.def)) {
+            return opts.def;
+        }
+        return 0;
+    }
+    return v;
 }
 exports.asFloat = asFloat;
 /**

@@ -40,7 +40,16 @@ export declare function pick(obj: Dict, ...args: any[]): Dict;
 export declare function omit(obj: Dict, ...args: any[]): Dict;
 export declare function isTrue(val: any): boolean;
 export declare function isFalse(val: any): boolean;
-export declare function asFloat(val: any, defVal?: number): number;
+export declare type AsFloatOpts = {
+    def?: number;
+    commaAsDecimal?: boolean;
+};
+/**
+ * Return val as a float. Handles thousands separators (comma).
+ * @param val
+ * @param opts
+ */
+export declare function asFloat(val: any, opts?: AsFloatOpts): number;
 /**
  * Always returns a valid integer. Returns 0 if the val cannot be parsed or rounded to an integer.
  * @param val
