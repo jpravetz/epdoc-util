@@ -56,11 +56,11 @@ export function isDate(val: any): val is Date {
   return val instanceof Date;
 }
 
-export function isArray(val: any): val is [] {
+export function isArray(val: any): val is any[] {
   return Array.isArray(val);
 }
 
-export function isNonEmptyArray(val: any): val is [] {
+export function isNonEmptyArray(val: any): val is any[] {
   return Array.isArray(val) && val.length > 0;
 }
 
