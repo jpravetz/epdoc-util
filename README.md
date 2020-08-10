@@ -32,3 +32,9 @@ npm run clean
 npm run build
 npm run test
 ```
+
+## Publish
+
+```bash
+npm publish
+```
